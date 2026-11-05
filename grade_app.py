@@ -1,4 +1,5 @@
 import streamlit as st
+import pandas as pd
 
 
 def get_grade(mark: int) -> str:
@@ -41,7 +42,21 @@ if submitted:
 
 st.subheader("Student list")
 if st.session_state.students:
-    st.dataframe(st.session_state.students, use_container_width=True, hide_index=True)
+    students_df = pd.DataFrame(st.session_state.students)
+
+    def highlight_grade(grade: str) -> str:
+        colors = {
+            "A": ("#34d158", "#ffffff"),
+            "B": ("#8ddda0", "#155724"),
+            "C": ("#cfbc8a", "#ffffff"),
+            "D": ("#fff3cd", "#856404"),
+            "E": ("#f8d7da", "#721c24"),
+        }
+        background, text = colors[grade]
+        return f"background-color: {background}; color: {text}; font-weight: bold"
+
+    styled_students = students_df.style.map(highlight_grade, subset=["Grade"])
+    st.dataframe(styled_students, use_container_width=True, hide_index=True)
 
     all_marks = [student["Marks"] for student in st.session_state.students]
     st.subheader("Class metrics")
